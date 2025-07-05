@@ -239,11 +239,10 @@ def save_data(data: pd.DataFrame, data_path: str, season: str) -> None:
 
 def main():
     try:
-        season = "kharif"
         df = load_data("./data/raw/final_merged_dataset.csv")
-        flattened = flatten_raw_data(df, season)
-        save_data(flattened, './data', season)
-
+        for season in ["kharif", "rabi", "zaid"]:
+            flattened = flatten_raw_data(df, season=season)
+            save_data(flattened, './data', season=season)
     except Exception:
         logger.exception("Failed in transform_flatten_raw_data pipeline")
 
