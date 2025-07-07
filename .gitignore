@@ -1,4 +1,7 @@
 data
+delete_Asset.py
+rename_asset.py
+logs
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

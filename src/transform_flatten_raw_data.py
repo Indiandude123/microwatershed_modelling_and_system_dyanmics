@@ -177,6 +177,7 @@ def flatten_raw_data(df: pd.DataFrame, season: str) -> pd.DataFrame:
                 f'max_cropping_area_liz_{season}': row.get(f'max_cropping_area_liz_{y}', np.nan),
                 f'max_area_other_{season}': row.get(f'max_area_other_{y}', np.nan),
                 f'max_cropping_area_other_{season}': row.get(f'max_cropping_area_other_{y}', np.nan),
+                f'max_cropping_area_{season}': row.get(f'max_cropping_area_hiz_{y}', np.nan) + row.get(f'max_cropping_area_liz_{y}', np.nan) + row.get(f'max_cropping_area_other_{y}', np.nan),
                 f'monsoon_onset_dev_days_{season}': row.get(f'monsoon_onset_dev_days_{y}', np.nan),
                 f'cropping_area_hiz_{season}': row.get(f'cropping_area_hiz_{season}_{y}', np.nan),
                 f'cropping_area_liz_{season}': row.get(f'cropping_area_liz_{season}_{y}', np.nan),
@@ -189,7 +190,7 @@ def flatten_raw_data(df: pd.DataFrame, season: str) -> pd.DataFrame:
                 f'gw_irrigation_other_{season}': row.get(f'gw_abstracted_other_{season}_{y}', np.nan),
                 f'gw_irrigation_liz_{season}': row.get(f'gw_abstracted_liz_{season}_{y}', np.nan),
                 'total_gw_irrigation': row.get(f'gw_abstracted_oz_liz_{y}', np.nan),
-                f'mws_soge_value_{season}': row.get(f'mws_soge_value_{y}', np.nan)
+                'mws_soge_value': row.get(f'mws_soge_value_{y}', np.nan)
             }
 
             for col in ['SO_1', 'SO_2', 'SO_3', 'SO_4', 'SO_5', 'SO_6', 'SO_7', 'SO_8', 'SO_9', 'SO_10', 'SO_11', 'isAlluviumAquifer']:
@@ -212,11 +213,35 @@ def flatten_raw_data(df: pd.DataFrame, season: str) -> pd.DataFrame:
         .cummax()
     )
 
-    lag_cols = [col for col in result_df.columns if col.endswith(f"_{season}")]
+    # lag_cols = [col for col in result_df.columns if col.endswith(f"_{season}")]
+    lag_cols = [
+        f'max_sw_area_{season}',
+        f'surface_water_area_in_swb_{season}',
+        f'area_wb_hiz_{season}',
+        f'area_wb_liz_{season}',
+        f'area_wb_other_{season}',
+        f'max_area_hiz_{season}',
+        f'max_cropping_area_hiz_{season}',
+        f'max_area_liz_{season}',
+        f'max_cropping_area_liz_{season}',
+        f'max_area_other_{season}',
+        f'max_cropping_area_other_{season}',
+        f'max_cropping_area_{season}',
+        f'cropping_area_hiz_{season}',
+        f'cropping_area_liz_{season}',
+        f'cropping_area_other_{season}',
+        f'crop_health_hiz_{season}',
+        f'crop_health_liz_{season}',
+        f'crop_health_other_{season}',
+        f'gw_irrigation_other_{season}',
+        f'gw_irrigation_liz_{season}',
+        'total_gw_irrigation',
+        'mws_soge_value'
+    ]
     result_df.sort_values(['uid', 'year'], inplace=True)
 
     for col in lag_cols:
-        result_df[f"{col}_t-1"] = result_df.groupby("uid")[col].shift(1)
+        result_df[f"{col}_prev"] = result_df.groupby("uid")[col].shift(1)
 
     result_df.dropna(inplace=True)
     result_df.reset_index(drop=True, inplace=True)
@@ -239,7 +264,8 @@ def save_data(data: pd.DataFrame, data_path: str, season: str) -> None:
 
 def main():
     try:
-        df = load_data("./data/raw/final_merged_dataset.csv")
+        raw_data_path = "./data/raw/final_merged_dataset.csv"
+        df = load_data(raw_data_path)
         for season in ["kharif", "rabi", "zaid"]:
             flattened = flatten_raw_data(df, season=season)
             save_data(flattened, './data', season=season)
