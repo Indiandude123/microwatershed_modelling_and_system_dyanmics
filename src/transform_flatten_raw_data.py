@@ -106,9 +106,9 @@ def flatten_raw_data(df: pd.DataFrame, season: str) -> pd.DataFrame:
                 f'crop_health_other_{season}_2017': row.get(f'{season}_other_ndvi_2017', np.nan),
             }
 
-            for col in ['SO_1', 'SO_2', 'SO_3', 'SO_4', 'SO_5', 'SO_6', 'SO_7', 'SO_8', 'SO_9', 'SO_10', 'SO_11', 'isAlluviumAquifer']:
+            for col in ['SO_1', 'SO_2', 'SO_3', 'SO_4', 'SO_5', 'SO_6', 'SO_7', 'SO_8', 'SO_9', 'SO_10', 'SO_11']:
                 new_row[col] = row.get(col, np.nan)
-
+            new_row["isAlluviumAquifer"] = int(row.get("isAlluviumAquifer", np.nan))
             rows.append(new_row)
 
     result_df = pd.DataFrame(rows)
