@@ -170,7 +170,7 @@ def scale_and_encode(train_df, test_df, model_name):
 
     all_df = pd.concat([train_df, test_df], axis=0)
 
-    uid_cols = [col for col in ['uid', 'year'] if col in all_df.columns]
+    uid_cols = [col for col in ['uid', 'year', 'isAlluviumAquifer'] if col in all_df.columns]
     target_cols = [col for col in all_df.columns if "target" in col or "label" in col]
     exclude_cols = set(uid_cols + target_cols)
 
