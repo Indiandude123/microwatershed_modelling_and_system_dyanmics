@@ -52,7 +52,7 @@ def save_split_data(train_df: pd.DataFrame, test_df: pd.DataFrame, season: str):
 
 def split_by_year(df: pd.DataFrame):
     """Split the dataset into train and test based on the 'year' column."""
-    train_years = [2017, 2018, 2019, 2020, 2021], 
+    train_years = [2018, 2019, 2020, 2021], 
     test_years = [2022]
 
     train_df = df[df["year"].isin(train_years)].copy()

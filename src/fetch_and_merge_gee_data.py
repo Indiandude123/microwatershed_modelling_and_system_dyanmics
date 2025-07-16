@@ -76,12 +76,16 @@ def preprocess_rainfall_data(url: str) -> pd.DataFrame:
 
 def preprocess_runoff_data(url):
     df = load_gee_data(url)
+    drop_cols = [col for col in ['id', 'area_in_ha', 'DN'] if col in df.columns]
+    df.drop(columns=drop_cols, inplace=True)
     logger.info("Preprocessed runoff data. Final shape: %s", df.shape)
     return df
 
 
 def preprocess_max_surface_water_area_swb(url):
     df = load_gee_data(url)
+    drop_cols = [col for col in ['id', 'area_in_ha', 'DN'] if col in df.columns]
+    df.drop(columns=drop_cols, inplace=True)
     logger.info("Preprocessed max surface water area in swb data. Final shape: %s", df.shape)
     return df
 
@@ -97,6 +101,8 @@ def preprocess_stream_order_areas_data(url: str) -> pd.DataFrame:
         pd.DataFrame: DataFrame with columns ['uid', 'SO_1', ..., 'SO_11'].
     """
     df = load_gee_data(url)
+    drop_cols = [col for col in ['id', 'area_in_ha', 'DN'] if col in df.columns]
+    df.drop(columns=drop_cols, inplace=True)
     if df.empty:
         logger.warning("Stream order data is empty. Returning empty DataFrame.")
         return pd.DataFrame()
@@ -228,6 +234,8 @@ def preprocess_total_area_zonewise_by_wb_creation(url: str) -> pd.DataFrame:
     Load total area zonewise by waterbody creation. No column drop needed.
     """
     df = load_gee_data(url)
+    drop_cols = [col for col in ['id', 'area_in_ha', 'DN'] if col in df.columns]
+    df.drop(columns=drop_cols, inplace=True)
     logger.info("Loaded total area zonewise by WB creation. Shape: %s", df.shape)
     return df
 
@@ -237,6 +245,8 @@ def preprocess_monsoon_onset(url: str) -> pd.DataFrame:
     Load and filter monsoon onset data to retain only specific year columns.
     """
     df = load_gee_data(url)
+    drop_cols = [col for col in ['id', 'area_in_ha', 'DN'] if col in df.columns]
+    df.drop(columns=drop_cols, inplace=True)
     required_cols = [
         'uid',
         'monsoon_onset_dev_days_2017',
@@ -330,6 +340,8 @@ def preprocess_total_gw_abs_liz_oz(url: str) -> pd.DataFrame:
         'gw_abstracted_oz_liz_2021', 'gw_abstracted_oz_liz_2022',
         'uid'
     ]
+    drop_cols = [col for col in ['id', 'area_in_ha', 'DN'] if col in df.columns]
+    df.drop(columns=drop_cols, inplace=True)
     missing_cols = [col for col in expected_cols if col not in df.columns]
     if missing_cols:
         logger.warning("Missing columns in GW abstraction data: %s", missing_cols)
@@ -344,11 +356,13 @@ def preprocess_soge_mws(url: str) -> pd.DataFrame:
     Renames columns for consistency across years.
     """
     df = load_gee_data(url)
+    drop_cols = [col for col in ['id', 'DN'] if col in df.columns]
+    df.drop(columns=drop_cols, inplace=True)
     original_cols = [
         'mws_soge_2017_value', 'mws_soge_2018_value',
         'mws_soge_2019_value', 'mws_soge_2020_value',
         'mws_soge_2021_value', 'mws_soge_2022_value',
-        'uid'
+        'uid', 'area_in_ha'
     ]
     missing_cols = [col for col in original_cols if col not in df.columns]
     if missing_cols:
@@ -504,7 +518,11 @@ if __name__ == "__main__":
         "masalia": False,
         "mandalgarh": False,
         "shahpur": True,
-        "rampur_maniharan": True
+        "rampur_maniharan": True,
+        "boipariguda": False,
+        "sawali": False,
+        "devdurga": False,
+        "pindwara": False
     }
 
     all_zone_dfs = []

@@ -52,6 +52,7 @@ def flatten_raw_data(df: pd.DataFrame, season: str) -> pd.DataFrame:
                 'area_in_ha': row.get(f'area_wb_hiz_{season}_{y}', 0) +
                               row.get(f'area_wb_liz_{season}_{y}', 0) +
                               row.get(f'area_wb_other_{season}_{y}', 0),
+                # 'area_in_ha': row.get('area_in_ha', np.nan),
                 f'rainfall_{season}': row.get(f'rainfall_{season}_{y}', np.nan),
                 f'runoff_{season}': row.get(f'runoff_{season}_{y}', np.nan),
                 f'max_sw_area': row.get(f'max_sw_area_{y}', np.nan),
@@ -72,8 +73,8 @@ def flatten_raw_data(df: pd.DataFrame, season: str) -> pd.DataFrame:
                 f'max_cropping_area_liz': row.get(f'max_cropping_area_liz_{y}', np.nan),
                 f'max_area_other': row.get(f'max_area_other_{y}', np.nan),
                 f'max_cropping_area_other': row.get(f'max_cropping_area_other_{y}', np.nan),
-                f'max_cropping_area': row.get(f'max_cropping_area_hiz_{y}', np.nan) + row.get(f'max_cropping_area_liz_{y}', np.nan) + row.get(f'max_cropping_area_other_{y}', np.nan),
-                f'monsoon_onset_dev_days_{season}': row.get(f'monsoon_onset_dev_days_{y}', np.nan),
+                # f'max_cropping_area': row.get(f'max_cropping_area_hiz_{y}', np.nan) + row.get(f'max_cropping_area_liz_{y}', np.nan) + row.get(f'max_cropping_area_other_{y}', np.nan),
+                f'monsoon_onset_dev_days': row.get(f'monsoon_onset_dev_days_{y}', np.nan),
                 f'cropping_area_hiz_{season}': row.get(f'cropping_area_hiz_{season}_{y}', np.nan),
                 f'cropping_area_liz_{season}': row.get(f'cropping_area_liz_{season}_{y}', np.nan),
                 f'cropping_area_other_{season}': row.get(f'cropping_area_other_{season}_{y}', np.nan),
@@ -100,7 +101,7 @@ def flatten_raw_data(df: pd.DataFrame, season: str) -> pd.DataFrame:
                 f'temp_extreme_days_proportion_{season}_2017': row.get(f'{season}_frequency_2017', np.nan),
                 f'area_wb_other_{season}_2017': row.get(f'area_wb_other_{season}_2017', np.nan),
                 f'cropping_area_other_{season}_2017': row.get(f'cropping_area_other_{season}_2017', np.nan),
-                f'max_cropping_area_other_2017': row.get(f'max_cropping_area_other_2017', np.nan),
+                # f'max_cropping_area_other_2017': row.get(f'max_cropping_area_other_2017', np.nan),
                 f'crop_health_hiz_{season}_2017': row.get(f'{season}_high_impact_ndvi_2017', np.nan),
                 f'crop_health_liz_{season}_2017': row.get(f'{season}_low_impact_ndvi_2017', np.nan),
                 f'crop_health_other_{season}_2017': row.get(f'{season}_other_ndvi_2017', np.nan),
@@ -112,7 +113,7 @@ def flatten_raw_data(df: pd.DataFrame, season: str) -> pd.DataFrame:
             rows.append(new_row)
 
     result_df = pd.DataFrame(rows)
-
+    
     result_df[f"total_cropping_area_{season}"] = (
         result_df[f"cropping_area_hiz_{season}"] +
         result_df[f"cropping_area_liz_{season}"] +
@@ -126,7 +127,23 @@ def flatten_raw_data(df: pd.DataFrame, season: str) -> pd.DataFrame:
         .cummax()
     )
 
-    # lag_cols = [col for col in result_df.columns if col.endswith(f"_{season}")]
+
+    result_df = result_df.drop(
+        index=np.where(
+            (result_df[f'max_cropping_area_other'] < 1e-5) |
+            (result_df[f'max_cropping_area_hiz'] < 1e-5) |
+            (result_df[f'max_cropping_area_liz'] < 1e-5) |
+            (result_df[f'max_cropping_area'] < 1e-5) |
+            (result_df[f'max_area_other'] < 1e-5) |
+            (result_df[f'max_area_hiz'] < 1e-5) |
+            (result_df[f'max_area_liz'] < 1e-5) |
+            (result_df[f'max_sw_area'] < 1e-5) 
+            # (result_df[f'max_sw_area'] > 40) |
+            # (result_df[f'surface_water_area_in_swb_{season}'] > 40)
+        )[0]
+    )
+
+
     lag_cols = [
         f'max_sw_area',
         f'surface_water_area_in_swb_{season}',
